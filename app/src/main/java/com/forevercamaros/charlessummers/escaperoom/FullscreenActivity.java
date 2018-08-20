@@ -18,6 +18,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.assistant.embedded.v1alpha2.SpeechRecognitionResult;
@@ -128,6 +129,23 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
+
+        SharedPreferences sp = getSharedPreferences(Constants.SHARED_PREFS,MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+
+        edit.putBoolean(Constants.DISPLAY_ON, false);
+        edit.apply();
+
+        boolean displayOn  = true;
+        displayOn = sp.getBoolean(Constants.DISPLAY_ON,true);
+
+
+
+        FrameLayout fl = (FrameLayout) findViewById(R.id.frame_layout);
+        if (!displayOn){
+            fl.setVisibility(View.INVISIBLE);
+        }
+
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
