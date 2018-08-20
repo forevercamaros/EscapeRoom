@@ -324,7 +324,7 @@ public class FullscreenActivity extends AppCompatActivity {
     public void RunCommand(android.view.View View) {
         TextView fullscreen_content = (TextView)findViewById(R.id.fullscreen_content);
         if (fullscreen_content.getText() == "Now You DIE!!!!" || fullscreen_content.getText() == getString(R.string.dummy_content)){
-            mEmbeddedAssistant.startConversation("turn on outlet");
+            mEmbeddedAssistant.startConversation("turn on Family Room Lamp");
         }
         new CountDownTimer(30000, 1000) {
 
@@ -339,7 +339,7 @@ public class FullscreenActivity extends AppCompatActivity {
             public void onFinish() {
                 TextView fullscreen_content = (TextView)findViewById(R.id.fullscreen_content);
                 fullscreen_content.setText("Now You DIE!!!!");
-                mEmbeddedAssistant.startConversation("turn off outlet");
+                mEmbeddedAssistant.startConversation("turn off Family Room Lamp");
             }
         }.start();
 
