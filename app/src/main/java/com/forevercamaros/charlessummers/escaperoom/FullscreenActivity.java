@@ -119,6 +119,8 @@ public class FullscreenActivity extends AppCompatActivity {
     private String stdByChannel;
     private Pubnub mPubNub;
 
+    Typeface custom_font;
+
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -198,7 +200,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mContentView = findViewById(R.id.fullscreen_content);
 
 
-        Typeface custom_font = Typeface.createFromAsset(getAssets(),  "fonts/my_imaginary_friend.ttf");
+        custom_font = Typeface.createFromAsset(getAssets(),  "fonts/my_imaginary_friend.ttf");
 
         mContentView.setTypeface(custom_font);
 
@@ -402,7 +404,7 @@ public class FullscreenActivity extends AppCompatActivity {
         this.mChatList     = findViewById(R.id.chat_list);
 
         List<ChatMessage> ll = new LinkedList<ChatMessage>();
-        mChatAdapter = new ChatAdapter(this, ll);
+        mChatAdapter = new ChatAdapter(this, ll,custom_font);
         FullscreenActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -645,22 +647,28 @@ public class FullscreenActivity extends AppCompatActivity {
                 String uuid = jsonMsg.getString(Constants.JSON_MSG_UUID);
                 String msg  = jsonMsg.getString(Constants.JSON_MSG);
                 long   time = jsonMsg.getLong(Constants.JSON_TIME);
-                if (uuid.equals("time")){
-                    final String locMsg = msg;
-                    FullscreenActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mContentView.setText(locMsg);
-                        }
-                    });
-                }else{
-                    final ChatMessage chatMsg = new ChatMessage(uuid, msg, time);
-                    FullscreenActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mChatAdapter.addMessage(chatMsg);
-                        }
-                    });
+                switch (uuid){
+                    case "time":
+                        final String locMsg = msg;
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mContentView.setText(locMsg);
+                            }
+                        });
+                        break;
+                    case "assistant_command":
+                        mEmbeddedAssistant.startConversation(msg);
+                        break;
+                    default:
+                        final ChatMessage chatMsg = new ChatMessage(uuid, msg, time);
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mChatAdapter.addMessage(chatMsg);
+                            }
+                        });
+                        break;
                 }
             } catch (JSONException e){
                 e.printStackTrace();

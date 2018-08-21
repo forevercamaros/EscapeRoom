@@ -1,6 +1,7 @@
 package com.forevercamaros.charlessummers.escaperoom;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,23 +22,23 @@ import java.util.List;
  * Created by GleasonK on 6/25/15.
  */
 public class ChatAdapter extends ArrayAdapter<ChatMessage> {
-    private static final long FADE_TIMEOUT = 3000;
+    private static final long FADE_TIMEOUT = 30000;
 
     private final Context context;
     private LayoutInflater inflater;
     private List<ChatMessage> values;
+    private Typeface mcustom_font;
 
-    public ChatAdapter(Context context, List<ChatMessage> values) {
+    public ChatAdapter(Context context, List<ChatMessage> values, Typeface custom_font) {
         super(context, R.layout.chat_message_row_layout, android.R.id.text1, values);
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.values=values;
+        mcustom_font=custom_font;
     }
 
     class ViewHolder {
-        TextView sender;
         TextView message;
-        TextView timeStamp;
         ChatMessage chatMsg;
     }
 
@@ -50,17 +51,14 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
         if (convertView == null) {
             holder = new ViewHolder();
             convertView = inflater.inflate(R.layout.chat_message_row_layout, parent, false);
-            holder.sender = (TextView) convertView.findViewById(R.id.chat_user);
             holder.message = (TextView) convertView.findViewById(R.id.chat_message);
-            holder.timeStamp = (TextView) convertView.findViewById(R.id.chat_timestamp);
             convertView.setTag(holder);
             Log.d("Adapter", "Recreating fadeout.");
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        holder.sender.setText(chatMsg.getSender() + ": ");
+        holder.message.setTypeface(mcustom_font);
         holder.message.setText(chatMsg.getMessage());
-        holder.timeStamp.setText(formatTimeStamp(chatMsg.getTimeStamp()));
         holder.chatMsg=chatMsg;
         setFadeOut3(convertView, chatMsg);
         return convertView;
