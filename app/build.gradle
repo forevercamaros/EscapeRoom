@@ -27,4 +27,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':grpc')
     implementation 'com.google.auth:google-auth-library-oauth2-http:0.10.0'
+    implementation 'com.pubnub:pubnub-android:3.7.4'
+    implementation project(':pnwebrtc')
+    implementation 'io.pristine:libjingle:9694@aar'
 }

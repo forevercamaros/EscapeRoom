@@ -1,1 +1,1 @@
-include ':app', ':grpc'
+include ':app', ':grpc', ':pnwebrtc'
