@@ -399,7 +399,6 @@ public class FullscreenActivity extends AppCompatActivity {
         intent.putExtra(Constants.USER_NAME, username);
         intent.putExtra(Constants.CALL_USER, userId);
         startActivity(intent);*/
-        //TODO Answer Call Automatically
         this.mChatList     = findViewById(R.id.chat_list);
 
         List<ChatMessage> ll = new LinkedList<ChatMessage>();
