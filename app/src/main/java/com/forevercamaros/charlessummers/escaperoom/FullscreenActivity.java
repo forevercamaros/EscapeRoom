@@ -7,6 +7,10 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.CountDownTimer;
@@ -206,13 +210,13 @@ public class FullscreenActivity extends AppCompatActivity {
 
 
         // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
+        /*mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 toggle();
                 sendMessage();
             }
-        });
+        });*/
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
@@ -666,6 +670,13 @@ public class FullscreenActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 mChatAdapter.addMessage(chatMsg);
+                                MediaPlayer mPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.psychotic_laugh);
+                                mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                    @Override
+                                    public void onPrepared(MediaPlayer mp) {
+                                        mp.start();
+                                    }
+                                });
                             }
                         });
                         break;

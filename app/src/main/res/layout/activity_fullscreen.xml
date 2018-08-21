@@ -20,7 +20,7 @@
         android:minWidth="300dp"
         android:layout_alignParentEnd="true"
         android:layout_above="@id/gl_surface"
-        android:stackFromBottom="true"
+        android:stackFromBottom="false"
         android:divider="@null"
         android:dividerHeight="0dp"
         />
