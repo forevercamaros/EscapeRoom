@@ -30,8 +30,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.assistant.embedded.v1alpha2.SpeechRecognitionResult;
-import com.google.auth.oauth2.UserCredentials;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
@@ -116,7 +114,6 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private static final boolean USE_VOICEHAT_I2S_DAC = Build.DEVICE.equals(BoardDefaults.DEVICE_RPI3);
 
-    private EmbeddedAssistant mEmbeddedAssistant;
     private SharedPreferences mSharedPreferences;
 
     private String username;
@@ -223,14 +220,6 @@ public class FullscreenActivity extends AppCompatActivity {
         // while interacting with the UI.
         mMainHandler = new Handler(getMainLooper());
 
-        UserCredentials userCredentials = null;
-        try {
-            userCredentials =
-                    EmbeddedAssistant.generateCredentials(this, R.raw.credentials);
-        } catch (IOException | JSONException e) {
-            Log.e(TAG, "error getting user credentials", e);
-        }
-
         AudioDeviceInfo audioOutputDevice = null;
         if (USE_VOICEHAT_I2S_DAC) {
             audioOutputDevice = findAudioDevice(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_BUS);
@@ -244,98 +233,6 @@ public class FullscreenActivity extends AppCompatActivity {
         int initVolume = preferences.getInt(PREF_CURRENT_VOLUME, DEFAULT_VOLUME);
         Log.i(TAG, "setting audio track volume to: " + initVolume);
 
-        mEmbeddedAssistant = new EmbeddedAssistant.Builder()
-                .setCredentials(userCredentials)
-                .setDeviceInstanceId(DEVICE_INSTANCE_ID)
-                .setDeviceModelId(DEVICE_MODEL_ID)
-                .setLanguageCode(LANGUAGE_CODE)
-                .setAudioOutputDevice(audioOutputDevice)
-                .setAudioSampleRate(SAMPLE_RATE)
-                .setAudioVolume(initVolume)
-                .setRequestCallback(new EmbeddedAssistant.RequestCallback() {
-                    @Override
-                    public void onRequestStart() {
-                        Log.i(TAG, "starting assistant request, enable microphones");
-                    }
-
-                    @Override
-                    public void onSpeechRecognition(List<SpeechRecognitionResult> results) {
-                        for (final SpeechRecognitionResult result : results) {
-                            Log.i(TAG, "assistant request text: " + result.getTranscript() +
-                                    " stability: " + Float.toString(result.getStability()));
-                        }
-                    }
-                })
-                .setConversationCallback(new EmbeddedAssistant.ConversationCallback() {
-                    @Override
-                    public void onResponseStarted() {
-                        super.onResponseStarted();
-                        // When bus type is switched, the AudioManager needs to reset the stream volume
-                    }
-
-                    @Override
-                    public void onResponseFinished() {
-                        super.onResponseFinished();
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e(TAG, "assist error: " + throwable.getMessage(), throwable);
-                    }
-
-                    @Override
-                    public void onVolumeChanged(int percentage) {
-                        Log.i(TAG, "assistant volume changed: " + percentage);
-                        // Update our shared preferences
-                        SharedPreferences.Editor editor = PreferenceManager
-                                .getDefaultSharedPreferences(FullscreenActivity.this)
-                                .edit();
-                        editor.putInt(PREF_CURRENT_VOLUME, percentage);
-                        editor.apply();
-                    }
-
-                    @Override
-                    public void onConversationFinished() {
-                        Log.i(TAG, "assistant conversation finished");
-                    }
-
-                    @Override
-                    public void onAssistantResponse(final String response) {
-                        if(!response.isEmpty()) {
-                            mMainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {  }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onAssistantDisplayOut(final String html) {
-                        mMainHandler.post(new Runnable() {
-                            @Override
-                            public void run() {   }
-                        });
-                    }
-
-                    public void onDeviceAction(String intentName, JSONObject parameters) {
-                        if (parameters != null) {
-                            Log.d(TAG, "Get device action " + intentName + " with parameters: " +
-                                    parameters.toString());
-                        } else {
-                            Log.d(TAG, "Get device action " + intentName + " with no paramete"
-                                    + "rs");
-                        }
-                        if (intentName.equals("action.devices.commands.OnOff")) {
-                            try {
-                                boolean turnOn = parameters.getBoolean("on");
-                            } catch (JSONException e) {
-                                Log.e(TAG, "Cannot get value of command", e);
-                            }
-                        }
-                    }
-                })
-                .build();
-        mEmbeddedAssistant.connect();
 
         this.username     = "ESCAPE_ROOM";
         this.stdByChannel = this.username + Constants.STDBY_SUFFIX;
@@ -662,7 +559,6 @@ public class FullscreenActivity extends AppCompatActivity {
                         });
                         break;
                     case "assistant_command":
-                        mEmbeddedAssistant.startConversation(msg);
                         break;
                     default:
                         final ChatMessage chatMsg = new ChatMessage(uuid, msg, time);
