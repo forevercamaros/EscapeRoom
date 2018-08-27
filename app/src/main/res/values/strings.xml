@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">EscapeRoom</string>
+    <string name="app_name">EscapeRoom2</string>
 
-    <string name="dummy_button">Start Timer</string>
-    <string name="dummy_content">Are You Ready?</string>
+    <string name="dummy_content"></string>
 </resources>
