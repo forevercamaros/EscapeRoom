@@ -564,6 +564,15 @@ public class FullscreenActivity extends AppCompatActivity {
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.videoView.onPause();
+        if (localVideoSource != null){
+            this.localVideoSource.stop();
+        }
+    }
+
     /**
      * Schedules a call to hide() in delay milliseconds, canceling any
      * previously scheduled calls.
@@ -689,6 +698,14 @@ public class FullscreenActivity extends AppCompatActivity {
         @Override
         public void onPeerConnectionClosed(PnPeer peer) {
             super.onPeerConnectionClosed(peer);
+            FullscreenActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    videoView.onPause();
+                    localVideoSource.stop();
+                }
+            });
+            try {Thread.sleep(1500);} catch (InterruptedException e){e.printStackTrace();}
         }
     }
 
