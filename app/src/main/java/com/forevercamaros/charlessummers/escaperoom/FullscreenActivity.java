@@ -660,6 +660,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 String uuid = jsonMsg.getString(Constants.JSON_MSG_UUID);
                 String msg  = jsonMsg.getString(Constants.JSON_MSG);
                 long   time = jsonMsg.getLong(Constants.JSON_TIME);
+                Log.d(TAG, "onMessage: " + msg);
                 switch (uuid){
                     case "time":
                         final String locMsg = msg;

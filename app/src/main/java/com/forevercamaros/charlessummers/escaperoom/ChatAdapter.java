@@ -86,8 +86,17 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
     }
 
     public void addMessage(ChatMessage chatMsg){
-        this.values.add(chatMsg);
-        notifyDataSetChanged();
+        boolean found = false;
+        for (ChatMessage chatMessage:values) {
+            if (chatMessage.getTimeStamp() == chatMsg.getTimeStamp()){
+                found=true;
+                break;
+            }
+        }
+        if (!found){
+            this.values.add(chatMsg);
+            notifyDataSetChanged();
+        }
     }
 
     private void setFadeOut2(final View view, final ChatMessage message){
