@@ -476,6 +476,15 @@ public class FullscreenActivity extends AppCompatActivity {
         connectToUser(userId, false);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (localVideoSource != null){
+            this.videoView.onResume();
+            this.localVideoSource.restart();
+        }
+    }
+
     public void sendMessage() {
         String message = "Test";
         if (message.equals("")) return; // Return if empty
