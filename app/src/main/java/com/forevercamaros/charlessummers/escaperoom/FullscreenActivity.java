@@ -123,6 +123,8 @@ public class FullscreenActivity extends AppCompatActivity {
     private String stdByChannel;
     private Pubnub mPubNub;
 
+    MediaPlayer backGroundMediaPlayer;
+
     Typeface custom_font;
 
     private final Runnable mHidePart2Runnable = new Runnable() {
@@ -673,6 +675,49 @@ public class FullscreenActivity extends AppCompatActivity {
                         break;
                     case "assistant_command":
                         mEmbeddedAssistant.startConversation(msg);
+                        break;
+                    case "music":
+                        if (backGroundMediaPlayer != null){
+                            if( backGroundMediaPlayer.isPlaying()){
+                                backGroundMediaPlayer.stop();
+                            }
+                        }
+
+                        switch (msg){
+                            case "2min_warning":
+                                FullscreenActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.little_demon_girl_song);
+                                        backGroundMediaPlayer.setLooping(true);
+                                        backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                            @Override
+                                            public void onPrepared(MediaPlayer mp) {
+                                                mp.start();
+                                            }
+                                        });
+                                    }
+                                });
+                                break;
+                            case "stop_music":
+                                break;
+                            default:
+                                FullscreenActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.haunted_nursery);
+                                        backGroundMediaPlayer.setLooping(true);
+                                        backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                            @Override
+                                            public void onPrepared(MediaPlayer mp) {
+                                                mp.start();
+                                            }
+                                        });
+                                    }
+                                });
+                        }
                         break;
                     default:
                         final ChatMessage chatMsg = new ChatMessage(uuid, msg, time);
