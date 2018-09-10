@@ -691,6 +691,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
                                         backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.little_demon_girl_song);
                                         backGroundMediaPlayer.setLooping(true);
+                                        backGroundMediaPlayer.setVolume(1.0f,1.0f);
                                         backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                                             @Override
                                             public void onPrepared(MediaPlayer mp) {
@@ -709,6 +710,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
                                         backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.haunted_nursery);
                                         backGroundMediaPlayer.setLooping(true);
+                                        backGroundMediaPlayer.setVolume(0.5f,0.5f);
                                         backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                                             @Override
                                             public void onPrepared(MediaPlayer mp) {
