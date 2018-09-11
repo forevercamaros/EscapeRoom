@@ -218,6 +218,7 @@ public class PnPeerConnectionClient {
     private class CreateOfferAction implements PnAction{
         public static final String TRIGGER = "init";
         public void execute(String peerId, JSONObject payload) throws JSONException {
+            try{Thread.sleep(1000);}catch (Exception e){};
             Log.d("COAction","CreateOfferAction");
             PnPeer peer = peers.get(peerId);
             peer.setDialed(true);
@@ -349,7 +350,13 @@ public class PnPeerConnectionClient {
             mRtcListener.onDebug(new PnRTCMessage(jsonMessage));
             try {
                 String peerId     = jsonMessage.getString(PnRTCMessage.JSON_NUMBER);
-                JSONObject packet = jsonMessage.getJSONObject(PnRTCMessage.JSON_PACKET);
+                JSONObject packet;
+                try {
+                    packet = jsonMessage.getJSONObject(PnRTCMessage.JSON_PACKET);
+                }catch (JSONException e){
+                    packet = new JSONObject(jsonMessage.getString(PnRTCMessage.JSON_PACKET));
+                }
+
                 PnPeer peer;
                 if (!peers.containsKey(peerId)){
                     // Possibly threshold number of allowed users

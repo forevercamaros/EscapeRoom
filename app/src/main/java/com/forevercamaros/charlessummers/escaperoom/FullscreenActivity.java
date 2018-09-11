@@ -342,7 +342,6 @@ public class FullscreenActivity extends AppCompatActivity {
         this.username     = "ESCAPE_ROOM";
         this.stdByChannel = this.username + Constants.STDBY_SUFFIX;
 
-        initPubNub();
 
         // To create our VideoRenderer, we can use the included VideoRendererGui for simplicity
         // First we need to set the GLSurfaceView that it should render to
@@ -350,6 +349,9 @@ public class FullscreenActivity extends AppCompatActivity {
 
         // Then we set that view, and pass a Runnable to run once the surface is ready
         VideoRendererGui.setView(videoView, null);
+
+        initPubNub();
+
     }
 
     /**
@@ -359,54 +361,7 @@ public class FullscreenActivity extends AppCompatActivity {
         this.mPubNub  = new Pubnub(Constants.PUB_KEY, Constants.SUB_KEY);
         this.mPubNub.setUUID(this.username);
         subscribeStdBy();
-    }
 
-    /**
-     * Subscribe to standby channel
-     */
-    private void subscribeStdBy(){
-        try {
-            this.mPubNub.subscribe(this.stdByChannel, new Callback() {
-                @Override
-                public void successCallback(String channel, Object message) {
-                    Log.d("MA-iPN", "MESSAGE: " + message.toString());
-                    if (!(message instanceof JSONObject)) return; // Ignore if not JSONObject
-                    JSONObject jsonMsg = (JSONObject) message;
-                    try {
-                        if (!jsonMsg.has(Constants.JSON_CALL_USER)) return;     //Ignore Signaling messages.
-                        String user = jsonMsg.getString(Constants.JSON_CALL_USER);
-                        dispatchIncomingCall(user);
-                    } catch (JSONException e){
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void connectCallback(String channel, Object message) {
-                    Log.d("MA-iPN", "CONNECTED: " + message.toString());
-                    setUserStatus(Constants.STATUS_AVAILABLE);
-                }
-
-                @Override
-                public void errorCallback(String channel, PubnubError error) {
-                    Log.d("MA-iPN","ERROR: " + error.toString());
-                }
-            });
-        } catch (PubnubException e){
-            Log.d("HERE","HEREEEE");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Handle incoming calls.
-     * @param userId
-     */
-    private void dispatchIncomingCall(String userId){
-        /*Intent intent = new Intent(MainActivity.this, IncomingCallActivity.class);
-        intent.putExtra(Constants.USER_NAME, username);
-        intent.putExtra(Constants.CALL_USER, userId);
-        startActivity(intent);*/
         this.mChatList     = findViewById(R.id.chat_list);
 
         List<ChatMessage> ll = new LinkedList<ChatMessage>();
@@ -472,6 +427,55 @@ public class FullscreenActivity extends AppCompatActivity {
         // Listen on a channel. This is your "phone number," also set the max chat users.
         this.pnRTCClient.listenOn(this.username);
         this.pnRTCClient.setMaxConnections(1);
+    }
+
+    /**
+     * Subscribe to standby channel
+     */
+    private void subscribeStdBy(){
+        try {
+            this.mPubNub.subscribe(this.stdByChannel, new Callback() {
+                @Override
+                public void successCallback(String channel, Object message) {
+                    Log.d("MA-iPN", "MESSAGE: " + message.toString());
+                    if (!(message instanceof JSONObject)) return; // Ignore if not JSONObject
+                    JSONObject jsonMsg = (JSONObject) message;
+                    try {
+                        if (!jsonMsg.has(Constants.JSON_CALL_USER)) return;     //Ignore Signaling messages.
+                        String user = jsonMsg.getString(Constants.JSON_CALL_USER);
+                        dispatchIncomingCall(user);
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void connectCallback(String channel, Object message) {
+                    Log.d("MA-iPN", "CONNECTED: " + message.toString());
+                    setUserStatus(Constants.STATUS_AVAILABLE);
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    Log.d("MA-iPN","ERROR: " + error.toString());
+                }
+            });
+        } catch (PubnubException e){
+            Log.d("HERE","HEREEEE");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Handle incoming calls.
+     * @param userId
+     */
+    private void dispatchIncomingCall(String userId){
+        /*Intent intent = new Intent(MainActivity.this, IncomingCallActivity.class);
+        intent.putExtra(Constants.USER_NAME, username);
+        intent.putExtra(Constants.CALL_USER, userId);
+        startActivity(intent);*/
+
 
         connectToUser(userId, false);
     }
