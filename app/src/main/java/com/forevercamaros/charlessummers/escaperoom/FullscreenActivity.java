@@ -716,6 +716,40 @@ public class FullscreenActivity extends AppCompatActivity {
                                 break;
                             case "stop_music":
                                 break;
+                            case "win":
+                                FullscreenActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.win);
+                                        backGroundMediaPlayer.setLooping(false);
+                                        backGroundMediaPlayer.setVolume(1.0f,1.0f);
+                                        backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                            @Override
+                                            public void onPrepared(MediaPlayer mp) {
+                                                mp.start();
+                                            }
+                                        });
+                                    }
+                                });
+                                break;
+                            case "lose":
+                                FullscreenActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.lose);
+                                        backGroundMediaPlayer.setLooping(false);
+                                        backGroundMediaPlayer.setVolume(1.0f,1.0f);
+                                        backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                            @Override
+                                            public void onPrepared(MediaPlayer mp) {
+                                                mp.start();
+                                            }
+                                        });
+                                    }
+                                });
+                                break;
                             default:
                                 FullscreenActivity.this.runOnUiThread(new Runnable() {
                                     @Override
@@ -723,7 +757,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
                                         backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.haunted_nursery);
                                         backGroundMediaPlayer.setLooping(true);
-                                        backGroundMediaPlayer.setVolume(0.5f,0.5f);
+                                        backGroundMediaPlayer.setVolume(0.1f,0.1f);
                                         backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                                             @Override
                                             public void onPrepared(MediaPlayer mp) {
