@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -90,6 +91,7 @@ public class FullscreenActivity extends AppCompatActivity {
     public static final String VIDEO_TRACK_ID = "videoPN";
     public static final String AUDIO_TRACK_ID = "audioPN";
     public static final String LOCAL_MEDIA_STREAM_ID = "localStreamPN";
+    private boolean TwoMinuteWarningSent = false;
 
     private GLSurfaceView videoView;
 
@@ -126,6 +128,13 @@ public class FullscreenActivity extends AppCompatActivity {
     MediaPlayer backGroundMediaPlayer;
 
     Typeface custom_font;
+
+    private int countDownLength =600000;
+
+    private boolean countdownPaused = false;
+
+
+    private CountDownTimerPausable countDownTimer;
 
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -489,15 +498,10 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    public void sendMessage() {
-        String message = "Test";
-        if (message.equals("")) return; // Return if empty
-        ChatMessage chatMsg = new ChatMessage(this.username, message, System.currentTimeMillis());
-        mChatAdapter.addMessage(chatMsg);
+    private void  sendMessage(ChatMessage chatMsg, String type){
         JSONObject messageJSON = new JSONObject();
         try {
-            //messageJSON.put(Constants.JSON_MSG_UUID, chatMsg.getSender());
-            messageJSON.put(Constants.JSON_MSG_UUID, chatMsg.getSender());
+            messageJSON.put(Constants.JSON_MSG_UUID, type);
             messageJSON.put(Constants.JSON_MSG, chatMsg.getMessage());
             messageJSON.put(Constants.JSON_TIME, chatMsg.getTimeStamp());
             this.pnRTCClient.transmitAll(messageJSON);
@@ -505,6 +509,7 @@ public class FullscreenActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     public void connectToUser(String user, boolean dialed) {
         this.pnRTCClient.connect(user, dialed);
     }
@@ -671,12 +676,187 @@ public class FullscreenActivity extends AppCompatActivity {
             super.onMessage(peer, message);  // Will log values
             if (!(message instanceof JSONObject)) return; //Ignore if not JSONObject
             JSONObject jsonMsg = (JSONObject) message;
+            ChatMessage chatMessage;
             try {
                 String uuid = jsonMsg.getString(Constants.JSON_MSG_UUID);
                 String msg  = jsonMsg.getString(Constants.JSON_MSG);
                 long   time = jsonMsg.getLong(Constants.JSON_TIME);
                 Log.d(TAG, "onMessage: " + msg);
                 switch (uuid){
+                    case "room_finished":
+                        countDownTimer.cancel();
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mContentView.setText("NOOO!!!\nYou Win!");
+                            }
+                        });
+                        mEmbeddedAssistant.startConversation("turn off family room lamp");
+                        mEmbeddedAssistant.startConversation("turn on outlet");
+                        mEmbeddedAssistant.startConversation("turn on living room floor lamp");
+                        if (backGroundMediaPlayer != null){
+                            if( backGroundMediaPlayer.isPlaying()){
+                                backGroundMediaPlayer.stop();
+                            }
+                        }
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.win);
+                                backGroundMediaPlayer.setLooping(false);
+                                backGroundMediaPlayer.setVolume(1.0f,1.0f);
+                                backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                    @Override
+                                    public void onPrepared(MediaPlayer mp) {
+                                        mp.start();
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    case "reset_room":
+                        if (countDownTimer != null){
+                            countDownTimer.cancel();
+                        }
+                        TwoMinuteWarningSent=true;
+                        if (backGroundMediaPlayer != null){
+                            if( backGroundMediaPlayer.isPlaying()){
+                                backGroundMediaPlayer.stop();
+                            }
+                        }
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mContentView.setText("ARE YOU READY?");
+                            }
+                        });
+                        mEmbeddedAssistant.startConversation("turn on family room lamp");
+                        mEmbeddedAssistant.startConversation("turn off outlet");
+                        chatMessage = new ChatMessage(username,"",SystemClock.currentThreadTimeMillis());
+                        sendMessage(chatMessage,"room_reset");
+                        break;
+                    case "pause_countdown":
+                        countdownPaused=true;
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                countDownTimer.pause();
+                            }
+                        });
+                        chatMessage = new ChatMessage(username,"", SystemClock.currentThreadTimeMillis());
+                        sendMessage(chatMessage,"paused");
+                        break;
+                    case "unpause_countdown":
+                        countdownPaused=false;
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                countDownTimer.start();
+                            }
+                        });
+                        chatMessage = new ChatMessage(username,"", SystemClock.currentThreadTimeMillis());
+                        sendMessage(chatMessage,"unpaused");
+                        break;
+                    case "start_room":
+                        if (countDownTimer != null){
+                            countDownTimer.cancel();
+                        }
+                        if (backGroundMediaPlayer != null){
+                            if( backGroundMediaPlayer.isPlaying()){
+                                backGroundMediaPlayer.stop();
+                            }
+                        }
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.haunted_nursery);
+                                backGroundMediaPlayer.setLooping(true);
+                                backGroundMediaPlayer.setVolume(0.1f,0.1f);
+                                backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                    @Override
+                                    public void onPrepared(MediaPlayer mp) {
+                                        mp.start();
+                                    }
+                                });
+                            }
+                        });
+                        TwoMinuteWarningSent=false;
+                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                countDownTimer = new CountDownTimerPausable(countDownLength, 1000) {
+
+                                    public void onTick(long millisUntilFinished) {
+                                        if (millisUntilFinished<120000 && !TwoMinuteWarningSent){
+                                            TwoMinuteWarningSent=true;
+                                            if (backGroundMediaPlayer != null){
+                                                if( backGroundMediaPlayer.isPlaying()){
+                                                    backGroundMediaPlayer.stop();
+                                                }
+                                            }
+                                            FullscreenActivity.this.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+
+                                                    backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.little_demon_girl_song);
+                                                    backGroundMediaPlayer.setLooping(true);
+                                                    backGroundMediaPlayer.setVolume(1.0f,1.0f);
+                                                    backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                                        @Override
+                                                        public void onPrepared(MediaPlayer mp) {
+                                                            mp.start();
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        int seconds = (int) (millisUntilFinished / 1000) % 60;
+                                        int minutes =  ((int)(millisUntilFinished / 1000) / 60);
+                                        //int minutes =  ((int)(millisUntilFinished / 1000) / 60) % 60;
+                                        //int hours = (int)(millisUntilFinished / 1000) / 3600;
+                                        //String time = String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+                                        final String time = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+                                        mContentView.setText(time);
+                                        ChatMessage chatMsg = new ChatMessage(username, "Restart Timer: " + time, System.currentTimeMillis());
+                                        sendMessage(chatMsg,"time");
+                                    }
+
+                                    public void onFinish() {
+                                        //mCallStatus.setText("Restart Timer: " + "00:00");
+                                        mContentView.setText("Now You DIE!!!!");
+                                        mEmbeddedAssistant.startConversation("turn off Family Room Lamp");
+                                        if (backGroundMediaPlayer != null){
+                                            if( backGroundMediaPlayer.isPlaying()){
+                                                backGroundMediaPlayer.stop();
+                                            }
+                                        }
+                                        FullscreenActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+
+                                                backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.lose);
+                                                backGroundMediaPlayer.setLooping(false);
+                                                backGroundMediaPlayer.setVolume(1.0f,1.0f);
+                                                backGroundMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                                    @Override
+                                                    public void onPrepared(MediaPlayer mp) {
+                                                        mp.start();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                        try{
+                                            Thread.sleep(500);
+                                        }catch (Exception e){}
+
+                                        mEmbeddedAssistant.startConversation("turn off outlet");
+                                    }
+                                }.start();
+                            }
+                        });
+                        break;
                     case "time":
                         final String locMsg = msg;
                         FullscreenActivity.this.runOnUiThread(new Runnable() {
