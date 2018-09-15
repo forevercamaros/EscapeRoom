@@ -688,7 +688,7 @@ public class FullscreenActivity extends AppCompatActivity {
                         FullscreenActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mContentView.setText("NOOO!!!\nYou Win!");
+                                mContentView.setText("NOOO!!!\nYou Win!\n" + mContentView.getText());
                             }
                         });
                         mEmbeddedAssistant.startConversation("turn off family room lamp");
