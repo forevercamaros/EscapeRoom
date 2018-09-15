@@ -446,7 +446,7 @@ public class FullscreenActivity extends AppCompatActivity {
             this.mPubNub.subscribe(this.stdByChannel, new Callback() {
                 @Override
                 public void successCallback(String channel, Object message) {
-                    Log.d("MA-iPN", "MESSAGE: " + message.toString());
+                    //Log.d("MA-iPN", "MESSAGE: " + message.toString());
                     if (!(message instanceof JSONObject)) return; // Ignore if not JSONObject
                     JSONObject jsonMsg = (JSONObject) message;
                     try {
@@ -728,7 +728,7 @@ public class FullscreenActivity extends AppCompatActivity {
                         FullscreenActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mContentView.setText("ARE YOU READY?");
+                                mContentView.setText("ARE YOU READY?\n45:00");
                             }
                         });
                         mEmbeddedAssistant.startConversation("turn on family room lamp");

@@ -2,5 +2,6 @@
     <string name="app_name">EscapeRoom</string>
 
     <string name="dummy_button">Start Timer</string>
-    <string name="dummy_content">Are You Ready?</string>
+    <string name="dummy_content">Are You Ready?
+    45:00</string>
 </resources>

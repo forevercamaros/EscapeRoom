@@ -120,9 +120,8 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
             if (values.contains(message))
                 values.remove(message);
             notifyDataSetChanged();
-            return;
         }
-        view.animate().setStartDelay(FADE_TIMEOUT - elapsed).setDuration(1500).alpha(0)
+        view.animate().setStartDelay(FADE_TIMEOUT).setDuration(1500).alpha(0)
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
@@ -136,46 +135,6 @@ public class ChatAdapter extends ArrayAdapter<ChatMessage> {
     }
 
 
-    private void setFadeOut(final View view, final ChatMessage message){
-        long elapsed = System.currentTimeMillis() - message.getTimeStamp();
-        if (elapsed >= FADE_TIMEOUT){
-            if (values.contains(message))
-                values.remove(message);
-            notifyDataSetChanged();
-            return;
-        }
-
-        view.setHasTransientState(true);
-        Animation fadeOut = new AlphaAnimation(1, 0);
-        fadeOut.setInterpolator(new AccelerateInterpolator()); //and this
-        fadeOut.setStartOffset(FADE_TIMEOUT - elapsed);
-        fadeOut.setDuration(1000);
-
-        AnimationSet animation = new AnimationSet(false);
-        animation.addAnimation(fadeOut);
-        animation.setRepeatCount(1);
-
-        view.setAnimation(animation);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (values.contains(message)){
-                    values.remove(message);
-                }
-                notifyDataSetChanged();
-                view.setAlpha(1);
-                view.setHasTransientState(false);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-
-
-    }
 
     /**
      * Format the long System.currentTimeMillis() to a better looking timestamp. Uses a calendar

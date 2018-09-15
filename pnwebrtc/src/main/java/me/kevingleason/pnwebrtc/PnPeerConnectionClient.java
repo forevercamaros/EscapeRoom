@@ -192,7 +192,7 @@ public class PnPeerConnectionClient {
             message.put(PnRTCMessage.JSON_PACKET, packet);
             message.put(PnRTCMessage.JSON_ID, sessionID);
             message.put(PnRTCMessage.JSON_NUMBER, this.id);
-            Log.i("iki isi paket", packet.toString());
+            //Log.i("iki isi paket", packet.toString());
             this.mPubNub.publish(toID, message, new Callback() {
                 @Override
                 public void successCallback(String channel, Object message, String timetoken) {
