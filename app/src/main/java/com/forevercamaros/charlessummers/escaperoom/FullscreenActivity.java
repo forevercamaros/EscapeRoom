@@ -129,7 +129,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     Typeface custom_font;
 
-    private int countDownLength =130000;
+    private int countDownLength =600000;
 
     private boolean countdownPaused = false;
 
@@ -790,7 +790,6 @@ public class FullscreenActivity extends AppCompatActivity {
 
                                     public void onTick(long millisUntilFinished) {
                                         if (millisUntilFinished<120000 && !TwoMinuteWarningSent){
-                                            mChatAdapter.addMessage(new ChatMessage(username,"2 Minute Warning",SystemClock.currentThreadTimeMillis()));
                                             TwoMinuteWarningSent=true;
                                             if (backGroundMediaPlayer != null){
                                                 if( backGroundMediaPlayer.isPlaying()){
