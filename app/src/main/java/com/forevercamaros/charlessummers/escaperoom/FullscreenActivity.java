@@ -698,11 +698,10 @@ public class FullscreenActivity extends AppCompatActivity {
 
                         switch (msg){
                             case "2min_warning":
-                                final ChatMessage chatMsg = new ChatMessage(uuid, "2 Minute Warning", time);
                                 FullscreenActivity.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mChatAdapter.addMessage(chatMsg);
+
                                         backGroundMediaPlayer = MediaPlayer.create(FullscreenActivity.this, R.raw.little_demon_girl_song);
                                         backGroundMediaPlayer.setLooping(true);
                                         backGroundMediaPlayer.setVolume(1.0f,1.0f);
