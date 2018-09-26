@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -51,9 +52,14 @@ import org.webrtc.VideoRendererGui;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -126,6 +132,9 @@ public class FullscreenActivity extends AppCompatActivity {
     MediaPlayer backGroundMediaPlayer;
 
     Typeface custom_font;
+
+    private boolean boolRunUpTimer=true;
+    private long startTime = System.currentTimeMillis();
 
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -351,6 +360,43 @@ public class FullscreenActivity extends AppCompatActivity {
         VideoRendererGui.setView(videoView, null);
 
         initPubNub();
+
+        if (boolRunUpTimer){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    File root = android.os.Environment.getExternalStorageDirectory();
+
+                    // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
+
+                    File dir = new File (root.getAbsolutePath() + "/download");
+                    dir.mkdirs();
+                    File file = new File(dir, "Uptime.txt");
+
+                    try {
+                        FileOutputStream f = new FileOutputStream(file);
+                        PrintWriter pw = new PrintWriter(f);
+                        while (1==1){
+                            try{
+                                Thread.sleep(30000);
+                            }catch (Exception e){}
+                            Long runningTime = System.currentTimeMillis() - startTime;
+                            int seconds = (int) (runningTime / 1000) % 60;
+                            int minutes =  ((int)(runningTime / 1000) / 60) % 60;
+                            int hours = (int)(runningTime / 1000) / 3600;
+                            pw.println(String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+                            pw.flush();
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Log.i(TAG, "******* File not found. Did you" +
+                                " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
 
     }
 
