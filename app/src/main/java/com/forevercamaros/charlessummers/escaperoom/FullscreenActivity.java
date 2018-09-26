@@ -461,7 +461,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
         // Now we can add our tracks.
         mediaStream.addTrack(localVideoTrack);
-        mediaStream.addTrack(localAudioTrack);
+        //mediaStream.addTrack(localAudioTrack);
 
         // First attach the RTC Listener so that callback events will be triggered
         this.pnRTCClient.attachRTCListener(new DemoRTCListener());
