@@ -40,6 +40,11 @@ import org.webrtc.VideoRendererGui;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -103,6 +108,9 @@ public class FullscreenActivity extends Activity {
     private Pubnub mPubNub;
 
     Typeface custom_font;
+
+    private boolean boolRunUpTimer=true;
+    private long startTime = System.currentTimeMillis();
 
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -276,6 +284,43 @@ public class FullscreenActivity extends Activity {
         // Listen on a channel. This is your "phone number," also set the max chat users.
         this.pnRTCClient.listenOn(this.username);
         this.pnRTCClient.setMaxConnections(1);
+
+        if (boolRunUpTimer){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    File root = android.os.Environment.getExternalStorageDirectory();
+
+                    // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
+
+                    File dir = new File (root.getAbsolutePath() + "/download");
+                    dir.mkdirs();
+                    File file = new File(dir, "Uptime.txt");
+
+                    try {
+                        FileOutputStream f = new FileOutputStream(file);
+                        PrintWriter pw = new PrintWriter(f);
+                        while (1==1){
+                            try{
+                                Thread.sleep(30000);
+                            }catch (Exception e){}
+                            Long runningTime = System.currentTimeMillis() - startTime;
+                            int seconds = (int) (runningTime / 1000) % 60;
+                            int minutes =  ((int)(runningTime / 1000) / 60) % 60;
+                            int hours = (int)(runningTime / 1000) / 3600;
+                            pw.println(String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
+                            pw.flush();
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Log.i(TAG, "******* File not found. Did you" +
+                                " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
     }
 
     /**
@@ -416,32 +461,6 @@ public class FullscreenActivity extends Activity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
-
-    /*public void RunCommand(android.view.View View) {
-        TextView fullscreen_content = (TextView)findViewById(R.id.fullscreen_content);
-        if (fullscreen_content.getText() == "Now You DIE!!!!" || fullscreen_content.getText() == getString(R.string.dummy_content)){
-            mEmbeddedAssistant.startConversation("turn on Family Room Lamp");
-        }
-        new CountDownTimer(30000, 1000) {
-
-            public void onTick(long millisUntilFinished) {
-                TextView fullscreen_content = (TextView)findViewById(R.id.fullscreen_content);
-                int seconds = (int) (millisUntilFinished / 1000) % 60;
-                int minutes =  ((int)(millisUntilFinished / 1000) / 60) % 60;
-                int hours = (int)(millisUntilFinished / 1000) / 3600;
-                fullscreen_content.setText(String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds));
-            }
-
-            public void onFinish() {
-                TextView fullscreen_content = (TextView)findViewById(R.id.fullscreen_content);
-                fullscreen_content.setText("Now You DIE!!!!");
-                mEmbeddedAssistant.startConversation("turn off Family Room Lamp");
-            }
-        }.start();
-
-    }*/
-
-
 
     /**
      * LogRTCListener is used for debugging purposes, it prints all RTC messages.
