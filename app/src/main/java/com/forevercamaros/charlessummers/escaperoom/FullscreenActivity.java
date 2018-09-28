@@ -737,9 +737,12 @@ public class FullscreenActivity extends AppCompatActivity {
                         break;
                     case "music":
                         if (backGroundMediaPlayer != null){
-                            if( backGroundMediaPlayer.isPlaying()){
-                                backGroundMediaPlayer.stop();
-                            }
+                            try{
+                                if( backGroundMediaPlayer.isPlaying()){
+                                    backGroundMediaPlayer.stop();
+                                    backGroundMediaPlayer.release();
+                                }
+                            }catch (Exception e){}
                         }
 
                         switch (msg){
@@ -776,6 +779,12 @@ public class FullscreenActivity extends AppCompatActivity {
                                                 mp.start();
                                             }
                                         });
+                                        backGroundMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                            @Override
+                                            public void onCompletion(MediaPlayer mp) {
+                                                mp.release();
+                                            }
+                                        });
                                     }
                                 });
                                 break;
@@ -791,6 +800,12 @@ public class FullscreenActivity extends AppCompatActivity {
                                             @Override
                                             public void onPrepared(MediaPlayer mp) {
                                                 mp.start();
+                                            }
+                                        });
+                                        backGroundMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                            @Override
+                                            public void onCompletion(MediaPlayer mp) {
+                                                mp.release();
                                             }
                                         });
                                     }
@@ -825,6 +840,12 @@ public class FullscreenActivity extends AppCompatActivity {
                                     @Override
                                     public void onPrepared(MediaPlayer mp) {
                                         mp.start();
+                                    }
+                                });
+                                mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                    @Override
+                                    public void onCompletion(MediaPlayer mp) {
+                                        mp.release();
                                     }
                                 });
                             }
