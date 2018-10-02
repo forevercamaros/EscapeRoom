@@ -109,7 +109,7 @@ public class FullscreenActivity extends Activity {
 
     Typeface custom_font;
 
-    private boolean boolRunUpTimer=true;
+    private boolean boolRunUpTimer=false;
     private long startTime = System.currentTimeMillis();
 
     private final Runnable mHidePart2Runnable = new Runnable() {
@@ -169,6 +169,14 @@ public class FullscreenActivity extends Activity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        BatteryLevelLow bll = new BatteryLevelLow();
+        bll.addBatteryLevelLowListener(new BatteryLevelLow.BatterLevelLowListener() {
+            @Override
+            public void onBatteryLevelLow() {
+                ChatMessage chatMsg = new ChatMessage(username, "bll", System.currentTimeMillis());
+                sendMessage(chatMsg);
+            }
+        });
 
         mSharedPreferences = getSharedPreferences(Constants.SHARED_PREFS,MODE_PRIVATE);
         SharedPreferences.Editor edit = mSharedPreferences.edit();
@@ -320,6 +328,18 @@ public class FullscreenActivity extends Activity {
                     }
                 }
             }).start();
+        }
+    }
+
+    private void  sendMessage(ChatMessage chatMsg){
+        JSONObject messageJSON = new JSONObject();
+        try {
+            messageJSON.put("msg_uuid", chatMsg.getSender());
+            messageJSON.put("msg_message", chatMsg.getMessage());
+            messageJSON.put("msg_timestamp", chatMsg.getTimeStamp());
+            this.pnRTCClient.transmitAll(messageJSON);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
