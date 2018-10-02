@@ -72,7 +72,7 @@ import me.kevingleason.pnwebrtc.PnSignalingParams;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class FullscreenActivity extends AppCompatActivity {
+public class FullscreenActivity extends AppCompatActivity{
 
     private Handler mMainHandler;
 
@@ -133,7 +133,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     Typeface custom_font;
 
-    private boolean boolRunUpTimer=true;
+    private boolean boolRunUpTimer=false;
     private long startTime = System.currentTimeMillis();
 
     private final Runnable mHidePart2Runnable = new Runnable() {
@@ -193,6 +193,14 @@ public class FullscreenActivity extends AppCompatActivity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        BatteryLevelLow bll = new BatteryLevelLow();
+        bll.addBatteryLevelLowListener(new BatteryLevelLow.BatterLevelLowListener() {
+            @Override
+            public void onBatteryLevelLow() {
+                ChatMessage chatMsg = new ChatMessage(username, "bll", System.currentTimeMillis());
+                sendMessage(chatMsg);
+            }
+        });
 
         mSharedPreferences = getSharedPreferences(Constants.SHARED_PREFS,MODE_PRIVATE);
         SharedPreferences.Editor edit = mSharedPreferences.edit();
@@ -461,7 +469,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
         // Now we can add our tracks.
         mediaStream.addTrack(localVideoTrack);
-        //mediaStream.addTrack(localAudioTrack);
+        mediaStream.addTrack(localAudioTrack);
 
         // First attach the RTC Listener so that callback events will be triggered
         this.pnRTCClient.attachRTCListener(new DemoRTCListener());
@@ -535,14 +543,9 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    public void sendMessage() {
-        String message = "Test";
-        if (message.equals("")) return; // Return if empty
-        ChatMessage chatMsg = new ChatMessage(this.username, message, System.currentTimeMillis());
-        mChatAdapter.addMessage(chatMsg);
+    private void  sendMessage(ChatMessage chatMsg){
         JSONObject messageJSON = new JSONObject();
         try {
-            //messageJSON.put(Constants.JSON_MSG_UUID, chatMsg.getSender());
             messageJSON.put(Constants.JSON_MSG_UUID, chatMsg.getSender());
             messageJSON.put(Constants.JSON_MSG, chatMsg.getMessage());
             messageJSON.put(Constants.JSON_TIME, chatMsg.getTimeStamp());
@@ -551,6 +554,7 @@ public class FullscreenActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     public void connectToUser(String user, boolean dialed) {
         this.pnRTCClient.connect(user, dialed);
     }
